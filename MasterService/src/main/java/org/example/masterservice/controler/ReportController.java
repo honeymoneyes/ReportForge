@@ -15,6 +15,6 @@ public class ReportController {
 
     @PostMapping("/create")
     public ResponseEntity<ReportResponse> createReport(@RequestBody ReportDTO reportDTO) {
-        return ResponseEntity.ok(reportService.createReport(reportDTO));
+        return ResponseEntity.ok(reportService.handleReportDelivery(reportDTO));
     }
 }

@@ -6,6 +6,7 @@ import org.example.masterservice.dto.ReportResponse;
 import org.example.masterservice.entity.Report;
 import org.example.masterservice.enums.Status;
 import org.example.masterservice.repository.ReportRepository;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -14,14 +15,29 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ReportService {
     private final ReportRepository reportRepository;
+    private final KafkaTemplate<String, Report> kafkaTemplate;
 
-    public ReportResponse createReport(ReportDTO reportDTO) {
+    public ReportResponse handleReportDelivery(ReportDTO reportDTO) {
+        var report = createReport(reportDTO);
+
+        sendMessageToWorker(reportDTO.getPhoneNumber(), report);
+
+        return ReportResponse.builder()
+                .uuid(report.getUuid())
+                .build();
+    }
+
+    private void sendMessageToWorker(String key, Report report) {
+        kafkaTemplate.send("worker1", key, report);
+        report.setStatus(Status.IN_PROGRESS);
+    }
+
+    private Report createReport(ReportDTO reportDTO) {
         UUID uuidReport = UUID.randomUUID();
 
         var report = Report.builder()
                 .uuid(uuidReport)
-                .firstname(reportDTO.getFirstname())
-                .lastname(reportDTO.getLastname())
+                .phoneNumber(reportDTO.getPhoneNumber())
                 .startDate(reportDTO.getStartDate())
                 .endDate(reportDTO.getEndDate())
                 .status(Status.PENDING)
@@ -29,8 +45,6 @@ public class ReportService {
 
         reportRepository.save(report);
 
-        return ReportResponse.builder()
-                .uuid(uuidReport)
-                .build();
+        return report;
     }
 }

@@ -19,8 +19,7 @@ public class Report {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private UUID uuid;
-    private String firstname;
-    private String lastname;
+    private String phoneNumber;
     private Date startDate;
     private Date endDate;
     private Status status;

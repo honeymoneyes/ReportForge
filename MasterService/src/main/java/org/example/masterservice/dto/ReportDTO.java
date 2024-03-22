@@ -12,8 +12,7 @@ import java.sql.Date;
 @NoArgsConstructor
 @Builder
 public class ReportDTO {
-    private String firstname;
-    private String lastname;
+    private String phoneNumber;
     private Date startDate;
     private Date endDate;
 }
