@@ -22,6 +22,7 @@ public class Report {
     private String phoneNumber;
     private Date startDate;
     private Date endDate;
+    @Enumerated(EnumType.STRING)
     private Status status;
     private String reference;
 }
