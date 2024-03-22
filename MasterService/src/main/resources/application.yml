@@ -1,3 +1,11 @@
+server:
+  port: 0
+
 spring:
   application:
-    name: MasterService
+    name: master-service
+
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.example.masterservice.serializers.ReportSerializer
