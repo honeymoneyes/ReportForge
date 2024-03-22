@@ -19,7 +19,7 @@ public class ReportProcessor {
         var allReportByStatus = reportRepository.findAllByStatus(Status.PENDING);
 
         allReportByStatus.forEach(report -> {
-            kafkaTemplate.send("worker1", report.getPhoneNumber(), report);
+            kafkaTemplate.send("worker_1", report.getPhoneNumber(), report);
             report.setStatus(Status.IN_PROGRESS);
             reportRepository.save(report);
         });
