@@ -1,7 +1,6 @@
 package org.example.workerservice.processors;
 
 import lombok.RequiredArgsConstructor;
-import org.example.workerservice.dto.ClientResponse;
 import org.example.workerservice.entity.Report;
 import org.example.workerservice.enums.ReportStatus;
 import org.example.workerservice.repository.ReportRepository;
@@ -10,7 +9,9 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 @Component
 @RequiredArgsConstructor
@@ -27,11 +28,21 @@ public class ReportProcessor {
         // и начинаем построение отчета. Ответ поступит в виде готового отчета, который требуется
         // сохранить в S3, а ссылку вернуть в report.
         allReportsByStatus.forEach(report -> {
+            // Построение готового отчета
             var readyReport = apiService.getInformationByNumberAndDate(
                     report.getPhoneNumber(),
                     report.getStartDate(),
                     report.getEndDate());
             // todo Добавить логику добавления отчета в S3 и передать ссылку на отчет
+            try (ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                 ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+                oos.writeObject(readyReport);
+                var byteArray = bos.toByteArray();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            // todo Вместо AWS S3 добавить логику отдельного feign client, который будет являться альтернативой
+            // todo базы данных и хранить uuid и массив bytes
             // Установка ссылке в report
             report.setReference("reference");
             // Установка статуса в DONE в воркере.
