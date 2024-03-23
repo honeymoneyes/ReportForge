@@ -12,7 +12,7 @@ import java.util.List;
 @FeignClient(name = "localhost:8080")
 public interface ApiService {
     @RequestMapping(value = "/client-service/calls", method = RequestMethod.GET)
-    List<ClientResponse> getAllClientsByNumberAndCallDateBetween(@RequestParam("number") String number,
-                                                                 @RequestParam("startDate") Date startDate,
-                                                                 @RequestParam("endDate") Date endDate);
+    List<ClientResponse> getInformationByNumberAndDate(@RequestParam("number") String number,
+                                                       @RequestParam("startDate") Date startDate,
+                                                       @RequestParam("endDate") Date endDate);
 }
