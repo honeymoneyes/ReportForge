@@ -66,7 +66,8 @@ public class ReportProcessor {
                 report.setReportStatus(ReportStatus.DONE);
                 // Сохранение измененного report с новым статусом.
                 reportRepository.save(report);
-//                kafkaTemplate.send("master", report.getPhoneNumber(), report);
+
+                kafkaTemplate.send("master", report.getPhoneNumber(), report);
             });
         }
     }

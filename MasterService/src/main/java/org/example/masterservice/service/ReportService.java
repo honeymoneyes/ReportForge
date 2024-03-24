@@ -6,6 +6,7 @@ import org.example.masterservice.dto.ReportResponse;
 import org.example.masterservice.entity.Report;
 import org.example.masterservice.enums.ReportStatus;
 import org.example.masterservice.repository.ReportRepository;
+import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -38,5 +39,11 @@ public class ReportService {
         reportRepository.save(report);
 
         return report;
+    }
+
+    @KafkaListener(topics = "master", groupId = "consumer-group-2")
+    public void getPendingReportsFromMaster(Report report) {
+        System.out.println("Сработал метод Master-Service - принять сообщение Kafka");
+        reportRepository.save(report);
     }
 }

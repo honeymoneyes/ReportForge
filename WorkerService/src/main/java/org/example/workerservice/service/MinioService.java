@@ -32,6 +32,7 @@ public class MinioService {
         } catch (Exception e) {
             log.error("Happened error when upload file: ", e);
         }
+        // todo Проверить для чего используется и где
         return FileDto.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -52,7 +53,7 @@ public class MinioService {
             log.error("Happened error when get list objects from minio: ", e);
             return null;
         }
-
+        // todo написать логику использования
         return stream;
     }
 
