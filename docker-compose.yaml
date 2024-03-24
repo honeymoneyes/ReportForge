@@ -1,3 +1,7 @@
+networks:
+  app-tool:
+    driver: bridge
+
 services:
   master-service:
     container_name: master-service
@@ -64,3 +68,12 @@ services:
 
     networks:
       - app-tool
+  minio:
+    image: quay.io/minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"

@@ -2,7 +2,7 @@ package org.example.masterservice.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.masterservice.enums.Status;
+import org.example.masterservice.enums.ReportStatus;
 
 import java.sql.Date;
 import java.util.UUID;
@@ -23,6 +23,6 @@ public class Report {
     private Date startDate;
     private Date endDate;
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private ReportStatus reportStatus;
     private String reference;
 }

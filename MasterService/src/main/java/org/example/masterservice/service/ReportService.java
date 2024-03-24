@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.masterservice.dto.ReportDTO;
 import org.example.masterservice.dto.ReportResponse;
 import org.example.masterservice.entity.Report;
-import org.example.masterservice.enums.Status;
+import org.example.masterservice.enums.ReportStatus;
 import org.example.masterservice.repository.ReportRepository;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +32,7 @@ public class ReportService {
                 .phoneNumber(reportDTO.getPhoneNumber())
                 .startDate(reportDTO.getStartDate())
                 .endDate(reportDTO.getEndDate())
-                .status(Status.PENDING)
+                .reportStatus(ReportStatus.PENDING)
                 .build();
 
         reportRepository.save(report);

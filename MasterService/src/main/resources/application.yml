@@ -1,9 +1,22 @@
 server:
-  port: 0
+  port: 8080
 
 spring:
   application:
     name: master-service
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl:
+          auto: update
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/master-reports
+    username: alex
+    password: alex
+    driver-class-name: org.postgresql.Driver
 
   kafka:
     producer:

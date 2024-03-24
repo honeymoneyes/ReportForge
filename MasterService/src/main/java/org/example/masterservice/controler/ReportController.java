@@ -5,7 +5,10 @@ import org.example.masterservice.dto.ReportDTO;
 import org.example.masterservice.dto.ReportResponse;
 import org.example.masterservice.service.ReportService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/report")
@@ -15,6 +18,7 @@ public class ReportController {
 
     @PostMapping("/create")
     public ResponseEntity<ReportResponse> createReport(@RequestBody ReportDTO reportDTO) {
-        return ResponseEntity.ok(reportService.handleReportDelivery(reportDTO));
+        return ResponseEntity.ok()
+                .body(reportService.handleReportDelivery(reportDTO));
     }
 }

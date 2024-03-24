@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 8081
 spring:
   application:
     name: worker-service
@@ -8,6 +8,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        hbm2ddl:
+          auto: update
 
   datasource:
     url: jdbc:postgresql://localhost:5433/reports
@@ -19,3 +21,18 @@ spring:
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.example.workerservice.serializers.ReportDeserializer
+
+
+cloud:
+  aws:
+    s3:
+      bucket:
+        name: reports
+      path-style:
+        enabled: "true"
+      anonymous-files:
+        enabled: "false"
+    endpoint: http://localhost:9000
+    credentials:
+      access-key: minioadmin
+      secret-key: minioadmin

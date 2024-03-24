@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.util.Date;
 import java.util.List;
 
-@FeignClient(name = "localhost:8080")
+@FeignClient(name = "localhost:8082")
 public interface ApiService {
     @RequestMapping(value = "/client-service/calls", method = RequestMethod.GET)
     List<ClientResponse> getInformationByNumberAndDate(@RequestParam("number") String number,

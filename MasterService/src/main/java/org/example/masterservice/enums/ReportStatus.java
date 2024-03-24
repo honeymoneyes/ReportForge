@@ -1,6 +1,6 @@
 package org.example.masterservice.enums;
 
-public enum Status {
+public enum ReportStatus {
     PENDING,
     IN_PROGRESS,
     DONE

@@ -13,6 +13,7 @@ public class ReportService {
 
     @KafkaListener(topics = "worker_1", groupId = "consumer-group-1")
     public void getPendingReportsFromMaster(Report report) {
+        System.out.println("Сработал метод Worker-Service - принять сообщение Kafka");
         reportRepository.save(report);
     }
 }
