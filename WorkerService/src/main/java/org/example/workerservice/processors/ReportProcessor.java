@@ -1,5 +1,6 @@
 package org.example.workerservice.processors;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.workerservice.dto.ClientResponse;
 import org.example.workerservice.dto.FileDto;
@@ -13,7 +14,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -29,26 +32,23 @@ public class ReportProcessor {
     public void createReport() {
         System.out.println("Я в WORKER SCHEDULED METHOD");
         var allReportsByStatus = reportRepository.findAllByReportStatus(ReportStatus.PENDING);
-        // Перебирая все отчеты с статусом PENDING, вызываем метод api service ( READ ONLY DB )
-        // и начинаем построение отчета. Ответ поступит в виде готового отчета, который требуется
-        // сохранить в S3, а ссылку вернуть в report.
         if (!allReportsByStatus.isEmpty()) {
+            // Перебирая все отчеты с статусом PENDING, вызываем метод api service ( READ ONLY DB )
+            // и начинаем построение отчета. Ответ поступит в виде готового отчета, который требуется
+            // сохранить в S3, а ссылку вернуть в report.
             allReportsByStatus.forEach(report -> {
                 // Построение готового отчета
-                var readyReport = apiService.getInformationByNumberAndDate(
+                List<ClientResponse> readyReport = apiService.getInformationByNumberAndDate(
                         report.getPhoneNumber(),
                         report.getStartDate(),
                         report.getEndDate());
 
                 FileDto fileDto;
                 try {
-                    String dataString = readyReport.stream()
-                            .map(ClientResponse::toString)
-                            .reduce("", (s1, s2) -> s1 + System.lineSeparator() + s2);
-
-                    byte[] dataBytes = dataString.getBytes();
-
-                    var byteArrayInputStream = new ByteArrayInputStream(dataBytes);
+                    ObjectMapper mapper = new ObjectMapper();
+                    var string = mapper.writeValueAsString(readyReport);
+                    var bytes = string.getBytes();
+                    var byteArrayInputStream = new ByteArrayInputStream(bytes);
                     fileDto = minioService.uploadFile(FileDto.builder()
                             .title(report.getUuid().toString())
                             .filename(report.getUuid().toString())

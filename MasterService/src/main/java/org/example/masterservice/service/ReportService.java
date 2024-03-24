@@ -1,8 +1,8 @@
 package org.example.masterservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.example.masterservice.dto.ReferenceResponse;
 import org.example.masterservice.dto.ReportDTO;
-import org.example.masterservice.dto.ReportResponse;
 import org.example.masterservice.entity.Report;
 import org.example.masterservice.enums.ReportStatus;
 import org.example.masterservice.repository.ReportRepository;
@@ -16,12 +16,12 @@ import java.util.UUID;
 public class ReportService {
     private final ReportRepository reportRepository;
 
-    public ReportResponse handleReportDelivery(ReportDTO reportDTO) {
+    public ReferenceResponse handleReportDelivery(ReportDTO reportDTO) {
 
         var report = createReport(reportDTO);
 
-        return ReportResponse.builder()
-                .uuid(report.getUuid())
+        return ReferenceResponse.builder()
+                .reference("http://localhost:8081/file/".concat(report.getUuid().toString()))
                 .build();
     }
 

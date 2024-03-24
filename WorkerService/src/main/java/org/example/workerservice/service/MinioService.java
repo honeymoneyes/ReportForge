@@ -1,15 +1,17 @@
 package org.example.workerservice.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.minio.*;
 import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.workerservice.dto.ClientResponse;
 import org.example.workerservice.dto.FileDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,19 +44,24 @@ public class MinioService {
                 .build();
     }
 
-    public InputStream downloadFile(String filename) {
-        InputStream stream;
+    public List<ClientResponse> downloadFile(String filename) {
+        GetObjectResponse stream;
+        List<ClientResponse> clientResponse;
         try {
             stream = minioClient.getObject(GetObjectArgs.builder()
                     .bucket(bucketName)
                     .object(filename)
                     .build());
+
+            var bytes = stream.readAllBytes();
+            ObjectMapper mapper = new ObjectMapper();
+            clientResponse = mapper.readValue(bytes, new TypeReference<>() {});
+
         } catch (Exception e) {
             log.error("Happened error when get list objects from minio: ", e);
             return null;
         }
-        // todo написать логику использования
-        return stream;
+        return clientResponse;
     }
 
     public List<FileDto> getListObjects() {
