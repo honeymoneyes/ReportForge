@@ -1,7 +1,9 @@
 package org.example.workerservice.handlers;
 
 
+import org.example.workerservice.exception.EmptyReportListException;
 import org.example.workerservice.exception.ReportNotReadyYetException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -16,5 +18,11 @@ public class Handler {
     @ResponseStatus(NOT_FOUND)
     public ErrorDetails handleReportNotReadyYetException(ReportNotReadyYetException exception) {
         return getErrorDetails(NOT_FOUND, "REFERENCE_NOT_EXIST", exception);
+    }
+
+    @ExceptionHandler(EmptyReportListException.class)
+    @ResponseStatus(NOT_FOUND)
+    public ErrorDetails handleEmptyReportListException(EmptyReportListException exception) {
+        return getErrorDetails(NOT_FOUND, "REPORT_LIST_IS_EMPTY", exception);
     }
 }
