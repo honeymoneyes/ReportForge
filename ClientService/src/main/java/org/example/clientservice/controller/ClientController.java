@@ -19,7 +19,7 @@ public class ClientController {
 
     @GetMapping("/calls")
     public List<ClientResponse> clientCalls(String number, Date startDate, Date endDate) {
-        var clientResponses = clientService.getAllClientsByNumberAndCallDateBetween(number, startDate, endDate).stream()
+        return clientService.getAllClientsByNumberAndCallDateBetween(number, startDate, endDate).stream()
                 .map(client -> ClientResponse.builder()
                         .number(client.getNumber())
                         .dateCall(client.getDateCall())
@@ -27,7 +27,5 @@ public class ClientController {
                         .duration(client.getDuration())
                         .build()
                 ).collect(Collectors.toList());
-        System.out.println();
-        return clientResponses;
     }
 }

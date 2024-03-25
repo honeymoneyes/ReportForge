@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/report")
+@RequestMapping("/master-service")
 @RequiredArgsConstructor
 public class ReportController {
     private final ReportService reportService;
 
-    @PostMapping("/create")
+    @PostMapping("/report/create")
     public ResponseEntity<ReferenceResponse> createReport(@RequestBody ReportDTO reportDTO) {
         return ResponseEntity.ok()
                 .body(reportService.handleReportDelivery(reportDTO));

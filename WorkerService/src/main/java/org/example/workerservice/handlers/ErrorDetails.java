@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static org.example.workerservice.constants.DateTimeConstants.DATE_TIME_FORMAT;
+
 @Data
 @Builder
 public class ErrorDetails {
@@ -30,7 +32,7 @@ public class ErrorDetails {
     }
 
     public static String getDateTimeFormatter() {
-        return DateTimeFormatter.ofPattern("MM-dd-yyyy HH:mm:ss", Locale.ENGLISH)
+        return DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ENGLISH)
                 .format(LocalDateTime.now());
     }
 }

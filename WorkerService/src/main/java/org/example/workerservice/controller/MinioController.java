@@ -3,6 +3,8 @@ package org.example.workerservice.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.example.workerservice.dto.ClientResponse;
+import org.example.workerservice.dto.FileDto;
+import org.example.workerservice.exception.EmptyReportListException;
 import org.example.workerservice.exception.ReportNotReadyYetException;
 import org.example.workerservice.service.MinioService;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +19,20 @@ import static org.springframework.web.servlet.HandlerMapping.BEST_MATCHING_PATTE
 
 
 @RestController
-@RequestMapping(value = "/file")
+@RequestMapping(value = "/worker-service/file")
 @RequiredArgsConstructor
 public class MinioController {
     private final MinioService minioService;
 
     @GetMapping
-    public ResponseEntity<Object> getFiles() {
+    public ResponseEntity<Object> getFiles() throws EmptyReportListException {
+        var listObjects = minioService.getListObjects();
+        if (listObjects.isEmpty()) {
+            throw new EmptyReportListException("List reports is empty");
+        }
         return ResponseEntity.ok(minioService.getListObjects());
     }
+
     @GetMapping("/**")
     public ResponseEntity<List<ClientResponse>> getFile(HttpServletRequest request) throws ReportNotReadyYetException {
         String pattern = (String) request.getAttribute(BEST_MATCHING_PATTERN_ATTRIBUTE);
@@ -33,7 +40,7 @@ public class MinioController {
         var clientResponses = minioService.downloadFile(filename);
 
         if (clientResponses == null) {
-            throw new ReportNotReadyYetException("Report's reference not exist yet. \n Touch again.");
+            throw new ReportNotReadyYetException("Report's reference not exist yet. Touch again.");
         }
 
         return ResponseEntity.ok()

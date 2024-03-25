@@ -1,6 +1,7 @@
 package org.example.masterservice.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.masterservice.dto.ReferenceResponse;
 import org.example.masterservice.dto.ReportDTO;
 import org.example.masterservice.entity.Report;
@@ -13,6 +14,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReportService {
     private final ReportRepository reportRepository;
 
@@ -21,7 +23,8 @@ public class ReportService {
         var report = createReport(reportDTO);
 
         return ReferenceResponse.builder()
-                .reference("http://localhost:8081/file/".concat(report.getUuid().toString()))
+                .description("Your report will be ready at this link after some time")
+                .reference("http://localhost:8080/worker-service/file/".concat(report.getUuid().toString()))
                 .build();
     }
 
@@ -43,7 +46,7 @@ public class ReportService {
 
     @KafkaListener(topics = "master", groupId = "consumer-group-2")
     public void getPendingReportsFromMaster(Report report) {
-        System.out.println("Сработал метод Master-Service - принять сообщение Kafka");
+        log.info("Master-Service method worked - accept Kafka message");
         reportRepository.save(report);
     }
 }

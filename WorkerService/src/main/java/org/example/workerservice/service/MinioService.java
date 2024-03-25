@@ -26,11 +26,14 @@ public class MinioService {
 
     public FileDto uploadFile(FileDto request) throws IOException {
         try {
+            log.info("In the try MinioService upload file block");
             minioClient.putObject(PutObjectArgs.builder()
                     .bucket(bucketName)
                     .object(request.getFilename())
                     .stream(request.getFile(), request.getFile().available(), -1)
                     .build());
+
+            log.info("Error did not occur when saving");
         } catch (Exception e) {
             log.error("Happened error when upload file: ", e);
         }
@@ -47,14 +50,18 @@ public class MinioService {
         GetObjectResponse stream;
         List<ClientResponse> clientResponse;
         try {
-            stream = minioClient.getObject(GetObjectArgs.builder()
-                    .bucket(bucketName)
-                    .object(filename)
-                    .build());
+            log.info("In the try MinioService download file block");
+            {
+                stream = minioClient.getObject(GetObjectArgs.builder()
+                        .bucket(bucketName)
+                        .object(filename)
+                        .build());
 
+            }
             var bytes = stream.readAllBytes();
             ObjectMapper mapper = new ObjectMapper();
-            clientResponse = mapper.readValue(bytes, new TypeReference<>() {});
+            clientResponse = mapper.readValue(bytes, new TypeReference<>() {
+            });
 
         } catch (Exception e) {
             log.error("Happened error when get list objects from minio: ", e);
@@ -86,6 +93,6 @@ public class MinioService {
     }
 
     private String getPreSignedUrl(String filename) {
-        return "http://localhost:8081/file/".concat(filename);
+        return "http://localhost:8080/worker-service/file/".concat(filename);
     }
 }

@@ -2,6 +2,7 @@ package org.example.workerservice.processors;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.workerservice.dto.ClientResponse;
 import org.example.workerservice.dto.FileDto;
 import org.example.workerservice.entity.Report;
@@ -20,6 +21,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ReportProcessor {
 
     private final MinioService minioService;
@@ -28,10 +30,12 @@ public class ReportProcessor {
     private final KafkaTemplate<String, Report> kafkaTemplate;
 
     @Scheduled(fixedRate = 5000)
-    @Async
     public void createReport() {
-        System.out.println("Я в WORKER SCHEDULED METHOD");
+        log.info("Executing the @Scheduled method - worker-service");
         var allReportsByStatus = reportRepository.findAllByReportStatus(ReportStatus.PENDING);
+
+        log.info(allReportsByStatus.size() + " - sheet size of the received request by PENDING status");
+
         if (!allReportsByStatus.isEmpty()) {
             // Перебирая все отчеты с статусом PENDING, вызываем метод api service ( READ ONLY DB )
             // и начинаем построение отчета. Ответ поступит в виде готового отчета, который требуется
@@ -42,14 +46,14 @@ public class ReportProcessor {
                         report.getPhoneNumber(),
                         report.getStartDate(),
                         report.getEndDate());
+                log.info(readyReport.size() + " - number of events in the report");
 
-                FileDto fileDto;
                 try {
                     ObjectMapper mapper = new ObjectMapper();
                     var string = mapper.writeValueAsString(readyReport);
                     var bytes = string.getBytes();
                     var byteArrayInputStream = new ByteArrayInputStream(bytes);
-                    fileDto = minioService.uploadFile(FileDto.builder()
+                    FileDto fileDto = minioService.uploadFile(FileDto.builder()
                             .title(report.getUuid().toString())
                             .filename(report.getUuid().toString())
                             .description("REPORT")
@@ -57,16 +61,14 @@ public class ReportProcessor {
                             .size((long) byteArrayInputStream.available())
                             .url(report.getUuid().toString())
                             .build());
+
+                    report.setReference(fileDto.getUrl());
+                    report.setReportStatus(ReportStatus.DONE);
+                    reportRepository.save(report);
                 } catch (IOException e) {
+                    log.error("In the catch block ReportProcessor - generating a report for loading into Minio");
                     throw new RuntimeException(e);
                 }
-                // Установка ссылке в report
-                report.setReference(fileDto.getUrl());
-                // Установка статуса в DONE в воркере.
-                report.setReportStatus(ReportStatus.DONE);
-                // Сохранение измененного report с новым статусом.
-                reportRepository.save(report);
-
                 kafkaTemplate.send("master", report.getPhoneNumber(), report);
             });
         }

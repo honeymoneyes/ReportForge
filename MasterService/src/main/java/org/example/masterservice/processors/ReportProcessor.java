@@ -1,6 +1,7 @@
 package org.example.masterservice.processors;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.masterservice.entity.Report;
 import org.example.masterservice.enums.ReportStatus;
 import org.example.masterservice.repository.ReportRepository;
@@ -13,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class ReportProcessor {
 
     private final ReportRepository reportRepository;
@@ -22,9 +24,8 @@ public class ReportProcessor {
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
     @Async
     public void sendMessageToWorker() {
+        log.info("The method is executed according to schedule in the Master Service");
         var allReportByStatus = reportRepository.findAllByReportStatus(ReportStatus.PENDING);
-
-        System.out.println("Я в Scheduled методе");
         if (!allReportByStatus.isEmpty()) {
             allReportByStatus.forEach(report -> {
                 kafkaTemplate.send("worker_1", report.getPhoneNumber(), report);

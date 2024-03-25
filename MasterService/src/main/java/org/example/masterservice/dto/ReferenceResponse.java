@@ -8,5 +8,6 @@ import lombok.*;
 @Getter
 @Setter
 public class ReferenceResponse {
+    private String description;
     private String reference;
 }
