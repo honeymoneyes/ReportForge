@@ -1,15 +1,22 @@
 server:
-  port: 0
+  port: 8080
 
 spring:
   application:
     name: master-service
-
   jpa:
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        hbm2ddl:
+          auto: update
+
+  datasource:
+    url: jdbc:postgresql://localhost:5434/reports
+    username: alex
+    password: alex
+    driver-class-name: org.postgresql.Driver
 
   kafka:
     producer:
@@ -18,8 +25,3 @@ spring:
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.example.masterservice.serializers.ReportDeserializer
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka:2000/eureka

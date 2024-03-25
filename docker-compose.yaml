@@ -3,6 +3,34 @@ networks:
     driver: bridge
 
 services:
+  eureka:
+    container_name: eureka-server
+    build:
+      context: EurekaServer
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 2000:2000
+    networks:
+      - app-tool
+
+  gateway:
+    container_name: api-gateway
+    build:
+      context: ApiGateway
+      dockerfile: Dockerfile
+    restart: always
+
+    ports:
+      - 8080:8080
+    depends_on:
+      - master-service
+      - worker-service
+      - client-service
+
+    networks:
+      - app-tool
+
   master-service:
     container_name: master-service
     build:
@@ -11,7 +39,50 @@ services:
     restart: always
     environment:
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://master-service-db:5432/reports
+      - SPRING_DATASOURCE_USERNAME=alex
+      - SPRING_DATASOURCE_PASSWORD=alex
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - master-service-db
+      - master-service-db-adminer
+    networks:
+      - app-tool
 
+  worker-service:
+    container_name: worker-service
+    build:
+      context: WorkerService
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://worker-service-db:5432/reports
+      - SPRING_DATASOURCE_USERNAME=alex
+      - SPRING_DATASOURCE_PASSWORD=alex
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - worker-service-db
+      - worker-service-db-adminer
+    networks:
+      - app-tool
+
+  client-service:
+    container_name: client-service
+    build:
+      context: ClientService
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://client-service-db:5432/clients
+      - SPRING_DATASOURCE_USERNAME=alex
+      - SPRING_DATASOURCE_PASSWORD=alex
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - client-service-db
+      - client-service-db-adminer
+    networks:
+      - app-tool
 
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -19,7 +90,6 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
-
     networks:
       - app-tool
 
@@ -31,44 +101,84 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_NUM_PARTITIONS: 3
-
+    depends_on:
+      - zookeeper
     networks:
       - app-tool
 
-    depends_on:
-      - zookeeper
-
-  db:
-    container_name: db
+  master-service-db:
+    container_name: master-service-db
     image: postgres:latest
     environment:
       - POSTGRES_USER=alex
       - POSTGRES_PASSWORD=alex
-      - POSTGRES_DB=people
+      - POSTGRES_DB=reports
     ports:
-      - 5432:5432
-    volumes:
-      - D:\volume:/var/lib/postgresql/data
-
+      - 5434:5432
     networks:
       - app-tool
 
-  adminer:
+  worker-service-db:
+    container_name: worker-service-db
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=alex
+      - POSTGRES_PASSWORD=alex
+      - POSTGRES_DB=reports
+    ports:
+      - 5433:5432
+    networks:
+      - app-tool
+
+  client-service-db:
+    container_name: client-service-db
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=alex
+      - POSTGRES_PASSWORD=alex
+      - POSTGRES_DB=clients
+    ports:
+      - 5432:5432
+    networks:
+      - app-tool
+
+  master-service-db-adminer:
     image: adminer
     restart: always
     ports:
-      - 8082:8080
+      - 8083:8080
     depends_on:
-      - db
-
+      - master-service-db
     networks:
       - app-tool
+
+  worker-service-db-adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8084:8080
+    depends_on:
+      - worker-service-db
+    networks:
+      - app-tool
+
+  client-service-db-adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8085:8080
+    depends_on:
+      - client-service-db
+    networks:
+      - app-tool
+
   minio:
+    container_name: minio
     image: quay.io/minio/minio
     ports:
       - "9000:9000"
@@ -77,3 +187,5 @@ services:
       - MINIO_ROOT_USER=minioadmin
       - MINIO_ROOT_PASSWORD=minioadmin
     command: server /data --console-address ":9001"
+    networks:
+      - app-tool

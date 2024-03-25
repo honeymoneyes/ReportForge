@@ -34,7 +34,6 @@ public class MinioService {
         } catch (Exception e) {
             log.error("Happened error when upload file: ", e);
         }
-        // todo Проверить для чего используется и где
         return FileDto.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())

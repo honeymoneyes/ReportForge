@@ -33,7 +33,7 @@ public class MinioController {
         var clientResponses = minioService.downloadFile(filename);
 
         if (clientResponses == null) {
-            throw new ReportNotReadyYetException("Report's reference not exist yet");
+            throw new ReportNotReadyYetException("Report's reference not exist yet. \n Touch again.");
         }
 
         return ResponseEntity.ok()

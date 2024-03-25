@@ -1,9 +1,9 @@
-FROM gradle:8.5 AS builder
+FROM gradle:8.5 as builder
 WORKDIR /app
 
 COPY gradle gradle
-COPY build.gradle settings.gradle gradlew ./
 COPY src src
+COPY build.gradle settings.gradle gradlew ./
 
 RUN gradle --no-daemon dependencies && \
     gradle --no-daemon bootJar

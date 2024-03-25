@@ -1,4 +1,4 @@
-FROM gradle:8.5 AS builder
+FROM gradle:8.5 as builder
 WORKDIR /app
 
 COPY gradle gradle

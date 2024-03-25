@@ -1,6 +1,5 @@
 server:
-  port: 0
-
+  port: 8082
 spring:
   application:
     name: client-service
@@ -9,16 +8,19 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        hbm2ddl:
+          auto: update
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/clients
+    username: alex
+    password: alex
+    driver-class-name: org.postgresql.Driver
 
   flyway:
-    url: jdbc:postgresql://client-service-db:5432/clients
+    url: jdbc:postgresql://localhost:5432/clients
     user: alex
     password: alex
     baseline-on-migrate: false
     enabled: true
     out-of-order: true
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka:2000/eureka
