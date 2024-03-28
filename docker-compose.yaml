@@ -27,7 +27,7 @@ services:
       - master-service
       - worker-service
       - client-service
-
+      - eureka
     networks:
       - app-tool
 

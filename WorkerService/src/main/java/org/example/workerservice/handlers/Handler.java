@@ -3,7 +3,6 @@ package org.example.workerservice.handlers;
 
 import org.example.workerservice.exception.EmptyReportListException;
 import org.example.workerservice.exception.ReportNotReadyYetException;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

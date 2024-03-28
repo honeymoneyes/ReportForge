@@ -17,7 +17,11 @@ import org.springframework.stereotype.Component;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +33,7 @@ public class ReportProcessor {
     private final ApiService apiService;
     private final KafkaTemplate<String, Report> kafkaTemplate;
 
-    @Scheduled(fixedRate = 5000)
+    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
     public void createReport() {
         log.info("Executing the @Scheduled method - worker-service");
         var allReportsByStatus = reportRepository.findAllByReportStatus(ReportStatus.PENDING);
@@ -69,8 +73,24 @@ public class ReportProcessor {
                     log.error("In the catch block ReportProcessor - generating a report for loading into Minio");
                     throw new RuntimeException(e);
                 }
-                kafkaTemplate.send("master", report.getPhoneNumber(), report);
+                try {
+                    kafkaTemplate.send("master",
+                            getUniqueKey(
+                                    report.getPhoneNumber(),
+                                    report.getStartDate(),
+                                    report.getEndDate()), report).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
             });
         }
+    }
+
+    private String getUniqueKey(String phoneNumber, Date startDate, Date endDate) {
+        return UUID.nameUUIDFromBytes((phoneNumber +
+                        startDate.toString() +
+                        endDate.toString())
+                        .getBytes())
+                .toString();
     }
 }
