@@ -35,7 +35,7 @@ public class ReportProcessor {
     private final KafkaTemplate<String, Report> kafkaTemplate;
 
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void createReport() {
         log.info("Executing the @Scheduled method - worker-service");
         var allReportsByStatus = reportRepository.findAllByReportStatus(ReportStatus.PENDING);
@@ -75,15 +75,11 @@ public class ReportProcessor {
                     log.error("In the catch block ReportProcessor - generating a report for loading into Minio");
                     throw new RuntimeException(e);
                 }
-                try {
-                    kafkaTemplate.send("master",
-                            getUniqueKey(
-                                    report.getPhoneNumber(),
-                                    report.getStartDate(),
-                                    report.getEndDate()), report).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
+                kafkaTemplate.send("master",
+                        getUniqueKey(
+                                report.getPhoneNumber(),
+                                report.getStartDate(),
+                                report.getEndDate()), report);
             });
         }
     }

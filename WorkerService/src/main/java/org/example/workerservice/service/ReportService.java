@@ -21,7 +21,7 @@ public class ReportService {
     private final UniqueMessageRepository uniqueMessageRepository;
 
     @KafkaListener(topics = "worker_1", groupId = "consumer-group-1")
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void getPendingReportsFromMaster(ConsumerRecord<String, Report> report) {
         log.info("Worker-Service method worked - accept Kafka message");
 

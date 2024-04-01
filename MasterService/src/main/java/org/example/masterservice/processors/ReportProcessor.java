@@ -25,30 +25,39 @@ public class ReportProcessor {
     private final KafkaTemplate<String, Report> kafkaTemplate;
 
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void sendMessageToWorker() {
         log.info("The method is executed according to schedule in the Master Service");
         var allReportByStatus = reportRepository.findAllByReportStatus(ReportStatus.PENDING);
 
         if (!allReportByStatus.isEmpty()) {
             allReportByStatus.forEach(report -> {
-                try {
-                    kafkaTemplate
-                            .send("worker_1",
-                                    getUniqueKey(
-                                            report.getPhoneNumber(),
-                                            report.getStartDate(),
-                                            report.getEndDate()), report).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-                log.info("Kafka message send");
-                report.setReportStatus(ReportStatus.IN_PROGRESS);
-                log.info("Set Report Status");
-                reportRepository.save(report);
-                log.info("Save report to database");
+                sendKafkaMessage(report);
+                changeReportStatus(report);
+                saveToDB(report);
             });
         }
+    }
+
+    private static void changeReportStatus(Report report) {
+        report.setReportStatus(ReportStatus.IN_PROGRESS);
+        log.info("Set Report Status");
+    }
+
+    public void saveToDB(Report report) {
+        reportRepository.save(report);
+        log.info("Save report to database");
+        throw new RuntimeException("DB_EXCEPTION");
+    }
+
+    public void sendKafkaMessage(Report report) {
+        kafkaTemplate
+                .send("worker_1",
+                        getUniqueKey(
+                                report.getPhoneNumber(),
+                                report.getStartDate(),
+                                report.getEndDate()), report);
+        log.info("Kafka message send");
     }
 
     public static String getUniqueKey(String phoneNumber, Date startDate, Date endDate) {

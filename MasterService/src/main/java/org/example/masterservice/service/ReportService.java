@@ -24,7 +24,7 @@ public class ReportService {
     private final ReportRepository reportRepository;
     private final UniqueMessageRepository uniqueMessageRepository;
 
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public ReferenceResponse handleReportDelivery(ReportDTO reportDTO) {
         String uniqueKey = ReportProcessor.getUniqueKey(
                 reportDTO.getPhoneNumber(),
@@ -60,7 +60,7 @@ public class ReportService {
     }
 
     @KafkaListener(topics = "master", groupId = "consumer-group-2")
-    @Transactional
+    @Transactional(transactionManager = "transactionManager")
     public void getPendingReportsFromMaster(ConsumerRecord<String, Report> report) {
         log.info("Master-Service method worked - accept Kafka message");
 
