@@ -14,6 +14,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,6 +35,7 @@ public class ReportProcessor {
     private final KafkaTemplate<String, Report> kafkaTemplate;
 
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
+    @Transactional
     public void createReport() {
         log.info("Executing the @Scheduled method - worker-service");
         var allReportsByStatus = reportRepository.findAllByReportStatus(ReportStatus.PENDING);
