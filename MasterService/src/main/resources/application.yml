@@ -15,7 +15,8 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.example.masterservice.serializers.ReportSerializer
-      transaction-id-prefix: tx-master-
+      transaction-id-prefix: tx-
+
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.example.masterservice.serializers.ReportDeserializer

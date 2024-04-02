@@ -21,7 +21,6 @@ import java.util.concurrent.TimeUnit;
 public class ReportProcessor {
 
     private final ReportRepository reportRepository;
-
     private final KafkaTemplate<String, Report> kafkaTemplate;
 
     @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
@@ -44,19 +43,23 @@ public class ReportProcessor {
         log.info("Set Report Status");
     }
 
-    public void saveToDB(Report report) {
+    private void saveToDB(Report report) {
         reportRepository.save(report);
         log.info("Save report to database");
-        throw new RuntimeException("DB_EXCEPTION");
+//        throw new RuntimeException("DB_EXCEPTION");
     }
 
-    public void sendKafkaMessage(Report report) {
-        kafkaTemplate
-                .send("worker_1",
-                        getUniqueKey(
-                                report.getPhoneNumber(),
-                                report.getStartDate(),
-                                report.getEndDate()), report);
+    private void sendKafkaMessage(Report report) {
+        try {
+            kafkaTemplate
+                    .send("worker_1",
+                            getUniqueKey(
+                                    report.getPhoneNumber(),
+                                    report.getStartDate(),
+                                    report.getEndDate()), report).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
         log.info("Kafka message send");
     }
 

@@ -75,11 +75,15 @@ public class ReportProcessor {
                     log.error("In the catch block ReportProcessor - generating a report for loading into Minio");
                     throw new RuntimeException(e);
                 }
-                kafkaTemplate.send("master",
-                        getUniqueKey(
-                                report.getPhoneNumber(),
-                                report.getStartDate(),
-                                report.getEndDate()), report);
+                try {
+                    kafkaTemplate.send("master",
+                            getUniqueKey(
+                                    report.getPhoneNumber(),
+                                    report.getStartDate(),
+                                    report.getEndDate()), report).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException(e);
+                }
             });
         }
     }

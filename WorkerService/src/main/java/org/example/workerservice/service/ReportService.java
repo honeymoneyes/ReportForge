@@ -21,9 +21,11 @@ public class ReportService {
     private final UniqueMessageRepository uniqueMessageRepository;
 
     @KafkaListener(topics = "worker_1", groupId = "consumer-group-1")
-    @Transactional(transactionManager = "transactionManager")
+    @Transactional
     public void getPendingReportsFromMaster(ConsumerRecord<String, Report> report) {
         log.info("Worker-Service method worked - accept Kafka message");
+
+        log.error(String.valueOf(report.value()));
 
         Optional<UniqueMessage> uniqueMessageByUniqueKey = uniqueMessageRepository
                 .findUniqueMessageByUniqueKey(report.key());
@@ -39,8 +41,10 @@ public class ReportService {
 
             reportRepository.save(report.value());
             log.info("Report saved.");
+            throw new RuntimeException("WORKER_COMMIT_EXCEPTION");
 
         }
+
         log.info("Report already exist.");
     }
 }
