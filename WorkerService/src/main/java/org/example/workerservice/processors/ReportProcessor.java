@@ -1,15 +1,20 @@
 package org.example.workerservice.processors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.workerservice.dto.ClientResponse;
 import org.example.workerservice.dto.FileDto;
 import org.example.workerservice.entity.Report;
+import org.example.workerservice.enums.KafkaTopics;
 import org.example.workerservice.enums.ReportStatus;
 import org.example.workerservice.repository.ReportRepository;
 import org.example.workerservice.service.ApiService;
 import org.example.workerservice.service.MinioService;
+import org.example.workerservice.service.ReportProducerService;
+import org.example.workerservice.service.ReportService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -18,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -29,18 +31,20 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ReportProcessor {
 
+    private final ReportService reportService;
     private final MinioService minioService;
     private final ReportRepository reportRepository;
     private final ApiService apiService;
-    private final KafkaTemplate<String, Report> kafkaTemplate;
+    private final ReportProducerService reportProducerService;
 
-    @Scheduled(fixedDelay = 5, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.SECONDS)
     @Transactional(transactionManager = "transactionManager")
     public void createReport() {
-        log.info("Executing the @Scheduled method - worker-service");
+        log.error("Executing the @Scheduled method | Worker-Service");
+
         var allReportsByStatus = reportRepository.findAllByReportStatus(ReportStatus.PENDING);
 
-        log.info(allReportsByStatus.size() + " - sheet size of the received request by PENDING status");
+        log.info(allReportsByStatus.size() + " - number of reports with PENDING status");
 
         if (!allReportsByStatus.isEmpty()) {
             // Перебирая все отчеты с статусом PENDING, вызываем метод api service ( READ ONLY DB )
@@ -52,47 +56,44 @@ public class ReportProcessor {
                         report.getPhoneNumber(),
                         report.getStartDate(),
                         report.getEndDate());
+
                 log.info(readyReport.size() + " - number of events in the report");
 
                 try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    var string = mapper.writeValueAsString(readyReport);
-                    var bytes = string.getBytes();
-                    var byteArrayInputStream = new ByteArrayInputStream(bytes);
-                    FileDto fileDto = minioService.uploadFile(FileDto.builder()
-                            .title(report.getUuid().toString())
-                            .filename(report.getUuid().toString())
-                            .description("REPORT")
-                            .file(byteArrayInputStream)
-                            .size((long) byteArrayInputStream.available())
-                            .url(report.getUuid().toString())
-                            .build());
-
-                    report.setReference(fileDto.getUrl());
-                    report.setReportStatus(ReportStatus.DONE);
-                    reportRepository.save(report);
+                    var file = convertReportToFile(readyReport);
+                    FileDto fileDto = uploadFileToMinioAndGetDTO(report, file);
+                    markAsDoneAndUpdateInDatabase(report, fileDto);
                 } catch (IOException e) {
-                    log.error("In the catch block ReportProcessor - generating a report for loading into Minio");
+                    log.error("Error uploading file to Minio server", e);
                     throw new RuntimeException(e);
                 }
-                try {
-                    kafkaTemplate.send("master",
-                            getUniqueKey(
-                                    report.getPhoneNumber(),
-                                    report.getStartDate(),
-                                    report.getEndDate()), report).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
+                reportProducerService.sendKafkaMessage(report, KafkaTopics.MASTER);
             });
         }
     }
 
-    private String getUniqueKey(String phoneNumber, Date startDate, Date endDate) {
-        return UUID.nameUUIDFromBytes((phoneNumber +
-                        startDate.toString() +
-                        endDate.toString())
-                        .getBytes())
-                .toString();
+    private void markAsDoneAndUpdateInDatabase(Report report, FileDto fileDto) {
+        reportService.changeReference(report, fileDto);
+        reportService.changeReportStatus(report, ReportStatus.DONE);
+        reportService.saveToReportDatabase(report);
+    }
+
+    @NotNull
+    private static ByteArrayInputStream convertReportToFile(List<ClientResponse> readyReport) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        var string = mapper.writeValueAsString(readyReport);
+        var bytes = string.getBytes();
+        return new ByteArrayInputStream(bytes);
+    }
+
+    private FileDto uploadFileToMinioAndGetDTO(Report report, ByteArrayInputStream byteArrayInputStream) throws IOException {
+        return minioService.uploadFile(FileDto.builder()
+                .title(report.getPhoneNumber() + "|" + report.getStartDate() + "|" + report.getEndDate())
+                .filename(report.getUuid().toString())
+                .description("REPORT")
+                .file(byteArrayInputStream)
+                .size((long) byteArrayInputStream.available())
+                .url(report.getUuid().toString())
+                .build());
     }
 }

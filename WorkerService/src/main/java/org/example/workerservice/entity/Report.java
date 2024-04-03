@@ -14,6 +14,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @Builder
 @ToString
+@Table(name = "report", indexes = {
+        @Index(name = "idx_unique_message_key", columnList = "phoneNumber, startDate, endDate")
+})
 public class Report {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

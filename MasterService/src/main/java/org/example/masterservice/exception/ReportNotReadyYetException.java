@@ -1,4 +1,4 @@
-package org.example.workerservice.exception;
+package org.example.masterservice.exception;
 
 import lombok.Getter;
 

@@ -14,7 +14,7 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.example.workerservice.serializers.ReportSerializer
-      transaction-id-prefix: tx-
+      transaction-id-prefix: tx-worker-
 
     consumer:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -45,6 +45,7 @@ eureka:
 
 logging:
   level:
+    org.springframework: info
     org.springframework.transaction: trace
     org.springframework.kafka.transaction: debug
     org.springframework.jdbc: debug
