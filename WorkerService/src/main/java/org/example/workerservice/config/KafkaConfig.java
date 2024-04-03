@@ -2,9 +2,9 @@ package org.example.workerservice.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.serialization.IntegerDeserializer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.example.workerservice.entity.Report;
+import org.example.workerservice.enums.KafkaTopics;
 import org.example.workerservice.serializers.ReportDeserializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +23,7 @@ import java.util.Map;
 public class KafkaConfig {
     @Bean
     public NewTopic topic() {
-        return TopicBuilder.name("master")
+        return TopicBuilder.name(KafkaTopics.MASTER)
                 .build();
     }
 

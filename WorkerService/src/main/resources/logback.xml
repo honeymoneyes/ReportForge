@@ -1,0 +1,30 @@
+<configuration>
+    <property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] %-40.40logger{39} : %msg%n"/>
+    <!-- console input -->
+    <appender name="infoLog" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- color log -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss} [%thread] %magenta(%-5level) %green([%-50.50class]) >>> %cyan(%msg) %n
+            </pattern>
+        </layout>
+    </appender>
+
+    <appender name="errorLog" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- color log -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss} [%thread] %red(%-5level) %red([%-50.50class]) >>> %cyan(%msg) %n
+            </pattern>
+        </layout>
+    </appender>
+
+    <logger name="org.example.workerservice" level="info">
+        <appender-ref ref="infoLog"/>
+    </logger>
+
+    <logger name="org.example.workerservice" level="error">
+        <appender-ref ref="errorLog"/>
+    </logger>
+
+</configuration>

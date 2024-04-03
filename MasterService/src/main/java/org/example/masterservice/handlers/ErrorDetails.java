@@ -1,7 +1,8 @@
-package org.example.workerservice.handlers;
+package org.example.masterservice.handlers;
 
 import lombok.Builder;
 import lombok.Data;
+import org.example.masterservice.constants.DateTimeConstants;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static org.example.workerservice.constants.DateTimeConstants.DATE_TIME_FORMAT;
 
 @Data
 @Builder
@@ -32,7 +32,7 @@ public class ErrorDetails {
     }
 
     public static String getDateTimeFormatter() {
-        return DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ENGLISH)
+        return DateTimeFormatter.ofPattern(DateTimeConstants.DATE_TIME_FORMAT, Locale.ENGLISH)
                 .format(LocalDateTime.now());
     }
 }
