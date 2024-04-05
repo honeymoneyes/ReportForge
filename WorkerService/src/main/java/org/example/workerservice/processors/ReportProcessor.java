@@ -15,8 +15,6 @@ import org.example.workerservice.service.MinioService;
 import org.example.workerservice.service.ReportProducerService;
 import org.example.workerservice.service.ReportService;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,20 +60,18 @@ public class ReportProcessor {
                 try {
                     var file = convertReportToFile(readyReport);
                     FileDto fileDto = uploadFileToMinioAndGetDTO(report, file);
-                    markAsDoneAndUpdateInDatabase(report, fileDto);
+                    reportService.changeReference(report, fileDto);
+
+                    reportService.changeReportStatus(report, ReportStatus.DONE);
+                    reportProducerService.sendKafkaMessage(report, KafkaTopics.MASTER);
+
+                    reportService.saveToReportDatabase(report);
                 } catch (IOException e) {
                     log.error("Error uploading file to Minio server", e);
                     throw new RuntimeException(e);
                 }
-                reportProducerService.sendKafkaMessage(report, KafkaTopics.MASTER);
             });
         }
-    }
-
-    private void markAsDoneAndUpdateInDatabase(Report report, FileDto fileDto) {
-        reportService.changeReference(report, fileDto);
-        reportService.changeReportStatus(report, ReportStatus.DONE);
-        reportService.saveToReportDatabase(report);
     }
 
     @NotNull

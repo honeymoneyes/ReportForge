@@ -20,9 +20,7 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.example.workerservice.serializers.ReportDeserializer
       enable-auto-commit: false
-      properties:
-        isolation_level: read_committed
-      auto-offset-reset: earliest
+      isolation-level: read_committed
 
 cloud:
   aws:
@@ -45,7 +43,8 @@ eureka:
 
 logging:
   level:
-    org.springframework: info
-    org.springframework.transaction: trace
-    org.springframework.kafka.transaction: debug
+    org.springframework: off
+    org.example.masterservice: info
+    org.springframework.transaction: info
+    org.springframework.kafka.transaction: info
     org.springframework.jdbc: debug

@@ -29,6 +29,7 @@ public class ReportHandler {
         if (reportIfExist.isEmpty()) {
             Report report = createReport(reportDTO);
             log.info("The report is created");
+            log.error("Hashcode - " + report.hashCode());
             return getReferenceResponse(ReferenceResponseStatus.REFERENCE_DESCRIPTION_IF_REPORT_IS_NOT_READY_YET, report);
         } else {
             Report report = reportIfExist.get(0);

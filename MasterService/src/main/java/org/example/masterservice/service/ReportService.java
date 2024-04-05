@@ -20,6 +20,7 @@ public class ReportService {
 
     public void saveToReportDatabase(Report report) {
         reportRepository.save(report);
+        log.error("Hashcode - " + report.hashCode());
         log.info("Save report  - " + report + " - to database");
     }
 }

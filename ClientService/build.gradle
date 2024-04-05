@@ -15,6 +15,10 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	configureEach {
+		exclude group: 'commons-logging', module: 'commons-logging'
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	}
 }
 
 repositories {
@@ -26,6 +30,7 @@ ext {
 }
 
 dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client:4.1.0'
 	implementation 'org.flywaydb:flyway-core:9.8.1'
 	implementation 'org.springframework.boot:spring-boot-starter-web'

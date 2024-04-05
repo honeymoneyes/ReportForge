@@ -1,7 +1,6 @@
 package org.example.workerservice.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.example.workerservice.entity.Report;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.logging.Logger;
 
 @Service
 @RequiredArgsConstructor
@@ -22,21 +20,24 @@ public class ReportConsumerService {
     private final ReportRepository reportRepository;
 
     @KafkaListener(topics = KafkaTopics.WORKER_1, groupId = ConsumerGroup.CONSUMER_GROUP_1)
-    public void getPendingReportsFromMaster(ConsumerRecord<String, Report> report) {
+    @Transactional(transactionManager = "transactionManager")
+    public void getPendingReportsFromMaster(Report report) {
 
         log.info("| Worker-Service | Consumer method worked | Accepted Kafka message |");
 
         List<Report> deduplicateReportIfExist =
                 reportRepository.findAllByPhoneNumberAndStartDateAndEndDate(
-                        report.value().getPhoneNumber(),
-                        report.value().getStartDate(),
-                        report.value().getEndDate());
+                        report.getPhoneNumber(),
+                        report.getStartDate(),
+                        report.getEndDate());
 
         log.info("Checking for duplicate messages");
 
         if (deduplicateReportIfExist.isEmpty()) {
-            reportRepository.save(report.value());
+            reportRepository.save(report);
+            log.error("Hashcode - " + report.hashCode());
             log.info("Report saved.");
+//            throw new RuntimeException("EXCEPTION");
         } else {
             log.info("Duplicate message accepted");
             log.info("Message not saved");

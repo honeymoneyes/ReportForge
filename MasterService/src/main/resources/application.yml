@@ -26,8 +26,7 @@ spring:
       value-deserializer: org.example.masterservice.serializers.ReportDeserializer
       enable-auto-commit: false
       properties:
-        isolation_level: read_committed
-      auto-offset-reset: earliest
+        isolation_level: read-committed
 
 cloud:
   aws:
@@ -52,6 +51,6 @@ logging:
   level:
     org.springframework: off
     org.example.masterservice: info
-    org.springframework.transaction: trace
-    org.springframework.kafka.transaction: debug
-    org.springframework.jdbc: debug
+    org.springframework.transaction: info
+    org.springframework.kafka.transaction: info
+    org.springframework.jdbc: info

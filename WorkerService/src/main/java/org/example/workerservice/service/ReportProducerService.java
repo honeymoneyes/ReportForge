@@ -20,6 +20,6 @@ public class ReportProducerService {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
-        log.info("Kafka message send to topic - " + topic + " with report - " + report);
+        log.info("Kafka message method finish");
     }
 }
