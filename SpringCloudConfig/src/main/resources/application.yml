@@ -9,4 +9,4 @@ spring:
     config:
       server:
         git:
-          uri: configs
+          uri: https://github.com/honeymoneyes/ReportForge
