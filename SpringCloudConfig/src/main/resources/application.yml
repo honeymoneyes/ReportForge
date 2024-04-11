@@ -11,3 +11,4 @@ spring:
         git:
           uri: https://github.com/honeymoneyes/ReportForge
           default-label: master
+          basedir: configs

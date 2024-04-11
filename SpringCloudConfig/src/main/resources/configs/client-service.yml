@@ -10,17 +10,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        hbm2ddl:
-          auto: update
-
-  datasource:
-    url: jdbc:postgresql://localhost:5432/clients
-    username: alex
-    password: alex
-    driver-class-name: org.postgresql.Driver
 
   flyway:
-    url: jdbc:postgresql://localhost:5432/clients
+    url: jdbc:postgresql://client-service-db:5432/clients
     user: alex
     password: alex
     baseline-on-migrate: false
@@ -30,4 +22,4 @@ spring:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:2000/eureka
+      defaultZone: http://eureka:2000/eureka
