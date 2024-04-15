@@ -3,12 +3,16 @@ server:
 
 spring:
   application:
-    name: config-server
+    name: config-service
 
   cloud:
     config:
+      retry:
+        initial-interval: 2000
+        max-attempts: 10
       server:
         git:
-          uri: https://github.com/honeymoneyes/ReportForge
+          uri: https://github.com/honeymoneyes/report-forge-configs
           default-label: master
-          basedir: configs
+          search-paths: "{application}"
+      fail-fast: false

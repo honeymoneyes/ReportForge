@@ -1,50 +1,5 @@
-server:
-  port: 0
-
 spring:
   application:
     name: worker-service
-  jpa:
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
-
-  kafka:
-    producer:
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      value-serializer: org.example.workerservice.serializers.ReportSerializer
-      transaction-id-prefix: tx-worker-
-
-    consumer:
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.example.workerservice.serializers.ReportDeserializer
-      enable-auto-commit: false
-      isolation-level: read_committed
-
-cloud:
-  aws:
-    s3:
-      bucket:
-        name: reports
-      path-style:
-        enabled: "true"
-      anonymous-files:
-        enabled: "false"
-    endpoint: http://minio:9000
-    credentials:
-      access-key: minioadmin
-      secret-key: minioadmin
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://eureka:2000/eureka
-
-logging:
-  level:
-    org.springframework: off
-    org.example.masterservice: info
-    org.springframework.transaction: info
-    org.springframework.kafka.transaction: info
-    org.springframework.jdbc: debug
+  config:
+    import: configserver:http://config-service:8888

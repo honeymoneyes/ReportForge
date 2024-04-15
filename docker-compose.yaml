@@ -3,12 +3,28 @@ networks:
     driver: bridge
 
 services:
+  config-service:
+    container_name: config-service
+    build:
+      context: SpringCloudConfig
+      dockerfile: Dockerfile
+    depends_on:
+      - kafka
+    restart: always
+    ports:
+      - 8888:8888
+    networks:
+      - app-tool
+
   eureka:
     container_name: eureka-server
     build:
       context: EurekaServer
       dockerfile: Dockerfile
     restart: always
+    depends_on:
+      - kafka
+      - config-service
     ports:
       - 2000:2000
     networks:
@@ -20,10 +36,10 @@ services:
       context: ApiGateway
       dockerfile: Dockerfile
     restart: always
-
     ports:
       - 8080:8080
     depends_on:
+      - config-service
       - master-service
       - worker-service
       - client-service
@@ -37,13 +53,10 @@ services:
       context: MasterService
       dockerfile: Dockerfile
     restart: always
-    environment:
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://master-service-db:5432/reports
-      - SPRING_DATASOURCE_USERNAME=alex
-      - SPRING_DATASOURCE_PASSWORD=alex
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
+      - kafka
+      - eureka
+      - config-service
       - master-service-db
       - master-service-db-adminer
     networks:
@@ -55,13 +68,10 @@ services:
       context: WorkerService
       dockerfile: Dockerfile
     restart: always
-    environment:
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://worker-service-db:5432/reports
-      - SPRING_DATASOURCE_USERNAME=alex
-      - SPRING_DATASOURCE_PASSWORD=alex
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
+      - kafka
+      - eureka
+      - config-service
       - worker-service-db
       - worker-service-db-adminer
     networks:
@@ -73,12 +83,10 @@ services:
       context: ClientService
       dockerfile: Dockerfile
     restart: always
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://client-service-db:5432/clients
-      - SPRING_DATASOURCE_USERNAME=alex
-      - SPRING_DATASOURCE_PASSWORD=alex
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
+      - kafka
+      - eureka
+      - config-service
       - client-service-db
       - client-service-db-adminer
     networks:
