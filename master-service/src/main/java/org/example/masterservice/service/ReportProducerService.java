@@ -18,7 +18,7 @@ public class ReportProducerService {
     public void sendKafkaMessage(Report report, String topic) {
 
         try {
-            kafkaTemplate.send(topic, report.getUuid().toString(), report).get();
+            kafkaTemplate.send(topic, report.getPhoneNumber(), report).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
