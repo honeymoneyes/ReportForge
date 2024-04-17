@@ -1,18 +1,18 @@
 # General microservice application for generating any types of reports in services.
-
+### Description:
 The application is a microservice system consisting of main and worker services. It solves the problem of receiving any form of reports; in this case, the implementation of a telephone call database is used, for example. The system allows you to **launch several application instances and scale it horizontally**. **To synchronize access to the database**, locking methods are not used, but instead **Kafka** and keys are used, **where each key will be placed in a separate partition**, which will make it possible to **solve the problem of competition for resources**.
 
-# Technologies Used:
-+ Java 
-+ Spring Boot
+## Technologies Used:
++ Java 21
++ Spring Boot 3.2.4
 + Spring Data JPA
 + Spring Cloud
 + PostgreSQL
 + Lombok
-+ Kafka
++ Kafka 3.1.3
 + Minio
 
-# Configuration Steps:
+## Configuration Steps:
 
 ### Clone the Application:
 
