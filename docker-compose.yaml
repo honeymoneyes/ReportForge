@@ -6,7 +6,7 @@ services:
   config-service:
     container_name: config-service
     build:
-      context: SpringCloudConfig
+      context: spring-cloud-config
       dockerfile: Dockerfile
     depends_on:
       - kafka
@@ -19,7 +19,7 @@ services:
   eureka:
     container_name: eureka-server
     build:
-      context: EurekaServer
+      context: eureka-server
       dockerfile: Dockerfile
     restart: always
     depends_on:
@@ -33,7 +33,7 @@ services:
   gateway:
     container_name: api-gateway
     build:
-      context: ApiGateway
+      context: api-gateway
       dockerfile: Dockerfile
     restart: always
     ports:
@@ -50,7 +50,7 @@ services:
   master-service:
     container_name: master-service
     build:
-      context: MasterService
+      context: master-service
       dockerfile: Dockerfile
     restart: always
     depends_on:
@@ -65,7 +65,7 @@ services:
   worker-service:
     container_name: worker-service
     build:
-      context: WorkerService
+      context: worker-service
       dockerfile: Dockerfile
     restart: always
     depends_on:
@@ -80,7 +80,7 @@ services:
   client-service:
     container_name: client-service
     build:
-      context: ClientService
+      context: client-service
       dockerfile: Dockerfile
     restart: always
     depends_on:
