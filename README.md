@@ -28,8 +28,6 @@ Open a terminal, navigate to the project root directory, and run the following c
 ```
 docker-compose up
 ```
-
-The application will start running at http://localhost:8080.
 ## Program execution steps
 ### Step 1
 Endpoint for creating a report - http://localhost:8080/master-service/report/create
