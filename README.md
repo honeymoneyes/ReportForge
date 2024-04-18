@@ -4,6 +4,10 @@ The application is a microservice system consisting of main and worker services.
 **Addressed issue of data inconsistency** between sender and recipient due to **potential message loss** or **out-of-order delivery** that can occur when messages are sent **before database update operations** have completed or because delivery cannot be guaranteed.
 Delivery semantics **achieved exactly once**. **Deduplication** implemented on the consumer side.
 
+### Scheme 
+<p><img src="https://github.com/honeymoneyes/ReportForge/assets/108457023/37416315-4b71-4679-971a-84d6de9a9e50"></p>
+
+
 ## Technologies Used:
 + Java 21
 + Spring Boot 3.2.4
