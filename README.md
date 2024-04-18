@@ -1,6 +1,8 @@
 # General microservice application for generating any types of reports in services.
 ### Description:
 The application is a microservice system consisting of main and worker services. It solves the problem of receiving any form of reports; in this case, the implementation of a telephone call database is used, for example. The system allows you to **launch several application instances and scale it horizontally**. **To synchronize access to the database**, locking methods are not used, but instead **Kafka** and keys are used, **where each key will be placed in a separate partition**, which will make it possible to **solve the problem of competition for resources**.
+**Addressed issue of data inconsistency** between sender and recipient due to **potential message loss** or **out-of-order delivery** that can occur when messages are sent **before database update operations** have completed or because delivery cannot be guaranteed.
+Delivery semantics **achieved exactly once**. **Deduplication** implemented on the consumer side.
 
 ## Technologies Used:
 + Java 21
