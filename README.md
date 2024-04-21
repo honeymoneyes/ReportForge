@@ -28,7 +28,7 @@ Clone the repository using the following command:
 git clone https://github.com/honeymoneyes/ReportForge
 ```
 
-### Run the Application Using Maven:
+### Run the Application:
 Open a terminal, navigate to the project root directory, and run the following command:
 
 ```
